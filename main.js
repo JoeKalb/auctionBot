@@ -14,6 +14,8 @@ const opts = {
   ]
 };
 
+const channelName = 'thabuttress'
+
 // Create a client with our options
 const client = new tmi.client(opts)
 
@@ -66,12 +68,27 @@ function onMessageHandler (target, context, msg, self) {
                 break;
             }
             case '!setTopBid':{
-                if(target.mod || context.username === 'thabuttress'){
-                    const username = parse[1]
-                    const bidAmount = parseInt(parse[2])
-
-                    topBid.username = username
-                    topBid.bid = bidAmount
+                if(checkUser(context.mod, context.username)){
+                    try{
+                        const username = parse[1]
+                        const bidAmount = parseInt(parse[2])
+    
+                        topBid.username = username
+                        topBid.bid = bidAmount
+                        updateStreamDisplay(`Current Bid: ${topBid.bid}`, 60, 'white')
+                    }
+                    catch(err){
+                        console.log(err)
+                    }
+                }
+                break;
+            }
+            case '!sold':{
+                if(topBid.bid && checkUser(context.mod, context.username)){
+                    client.say(target,
+                        `The winner of is ${topBid.username} with a bid of ${topBid.bid} buttcoins!`)
+                    topBid.username = ''
+                    topBid.bid = 0
                 }
                 break;
             }
@@ -82,7 +99,7 @@ function onMessageHandler (target, context, msg, self) {
         
     case 'whisper':{
         if(context.username === 'thabottress'){
-            console.log(msg)
+            console.log(`Bottress Whisper: ${msg}`)
             const parse = msg.split(' ')
             if(parse.length === 2){
                 try{
@@ -111,6 +128,7 @@ function onMessageHandler (target, context, msg, self) {
                         topBid.username = username
                         topBid.bid = checkBidUsers[username]
                         client.say('#thabuttress', `New Top Bidder: ${topBid.username} - ${topBid.bid}`)
+                        updateStreamDisplay(`Current Bid: ${topBid.bid}`, 60, 'white')
         
                         // remove user from checkBidUsers
                         delete checkBidUsers[username]
@@ -139,9 +157,31 @@ function checkBid(username, points){
     }
 }
 
+function checkUser(mod, name){
+    return mod || name === 'thabuttress'
+}
+
 function buttcoins(type, name, amount){
     console.log(`!buttcoins ${type} ${name} ${amount}`)
     client.say('thabuttress', `!buttcoins ${type} ${name} ${amount}`) // make into whisper when this is working
+}
+
+let updateStreamDisplay = async (value, font, color) => {
+    const body = JSON.stringify({
+        value,
+        font,
+        color
+    })
+    let res = await fetch(`https://buttress-live-display.herokuapp.com?password=${channelName}`, {
+        method:"POST",
+        headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        },
+        body
+    })
+    let json = await res.json()
+    console.log(json)
 }
 
 // Called every time the bot connects to Twitch chat
