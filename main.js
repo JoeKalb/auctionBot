@@ -43,11 +43,16 @@ function onMessageHandler (target, context, msg, self) {
                 client.say(target, 'Beep Boop Botfish')
                 break;
             }
+            case '!auction':{
+                client.say(target, `We're doing a buttcoin auction!!! Commands: !bid <amount> | !topBid`)
+                break;
+            }
             case '!bid':{
                 try{
                     const bidAmount = parseInt(parse[1])
                     if(bidAmount > topBid.bid){
                         checkBidUsers[context.username] = bidAmount
+                        console.log(checkBidUsers[context.username])
                         client.whisper('thabottress', `!check ${context.username}`)
                     }
                 }
@@ -57,11 +62,11 @@ function onMessageHandler (target, context, msg, self) {
                 break;
             }
             case '!topBid':{
-                client.say(target, `${topBid.username} - ${topBid.bid}`)
+                client.say(target, `${(topBid.bid) ? `${topBid.username} - ${topBid.bid}`:`No one has bid yet!`}`)
                 break;
             }
             case '!setTopBid':{
-                if(target.mod){
+                if(target.mod || context.username === 'thabuttress'){
                     const username = parse[1]
                     const bidAmount = parseInt(parse[2])
 
@@ -80,19 +85,39 @@ function onMessageHandler (target, context, msg, self) {
             console.log(msg)
             const parse = msg.split(' ')
             if(parse.length === 2){
-                const username = parse[0]
-                const points = parseInt(parse[1])
-                if(checkBid(username, points)){
-                    // remove and buttcoins
-                    buttcoins('remove', username, checkBidUsers[username])
-                    
-                    // reset and notify an updated bid
-                    topBid.username = username
-                    topBid.bid = checkBidUsers[username]
-                    client.say('#thabuttress', `New Top Bidder: ${topBid.username} - ${topBid.bid}`)
+                try{
+                    const username = parse[0]
+                    const points = parseInt(parse[1])
+                    if(checkBid(username, points)){
+                        // remove and add buttcoins
+
+                        const removeAmount = checkBidUsers[username]
+                        console.log(removeAmount)
     
-                    // remove user from checkBidUsers
-                    delete checkBidUsers[username]
+                        setTimeout(() => {
+                            console.log(`remove ${username} ${removeAmount}`)
+                            buttcoins('remove', username, removeAmount)
+                        }, 5000)
+                        if(topBid.bid){
+                            const oldTopName = topBid.username
+                            const oldTopBid = topBid.bid
+                            setTimeout(() => {
+                                console.log(`add ${oldTopName} ${oldTopBid}`)
+                                buttcoins('add', oldTopName, oldTopBid)
+                            }, 7000)
+                        }
+                        
+                        // reset and notify an updated bid
+                        topBid.username = username
+                        topBid.bid = checkBidUsers[username]
+                        client.say('#thabuttress', `New Top Bidder: ${topBid.username} - ${topBid.bid}`)
+        
+                        // remove user from checkBidUsers
+                        delete checkBidUsers[username]
+                    }
+                }
+                catch(err){
+                    console.log(err)
                 }
             }
         }
@@ -116,7 +141,7 @@ function checkBid(username, points){
 
 function buttcoins(type, name, amount){
     console.log(`!buttcoins ${type} ${name} ${amount}`)
-    client.whisper('thabottress', `!buttcoins ${type} ${name} ${amount}`)
+    client.say('thabuttress', `!buttcoins ${type} ${name} ${amount}`) // make into whisper when this is working
 }
 
 // Called every time the bot connects to Twitch chat
