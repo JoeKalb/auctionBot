@@ -104,6 +104,8 @@ function onMessageHandler (target, context, msg, self) {
             if(parse.length === 2){
                 try{
                     const username = parse[0]
+                    if(username === 'thabuttress')
+                        bottressResponding = true;
                     const points = parseInt(parse[1])
                     if(checkBid(username, points)){
                         // remove and add buttcoins
@@ -145,6 +147,15 @@ function onMessageHandler (target, context, msg, self) {
         console.log(context['message-type'])
   }
 }
+
+let bottressResponding = false;
+let isStillRunning = setInterval(() => {
+    if(bottressResponding)
+        clearInterval(isStillRunning)
+    else{
+        client.whisper('thabottress', '!check thabuttress')
+    }
+}, 10000)
 
 function checkBid(username, points){
     if(points >= checkBidUsers[username]){
