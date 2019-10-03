@@ -95,7 +95,7 @@ function onMessageHandler (target, context, msg, self) {
             default:
         }
         break;
-      }
+    }
         
     case 'whisper':{
         if(context.username === 'thabottress'){
