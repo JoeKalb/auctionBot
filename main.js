@@ -163,7 +163,7 @@ function checkUser(mod, name){
 
 function buttcoins(type, name, amount){
     console.log(`!buttcoins ${type} ${name} ${amount}`)
-    client.say('thabuttress', `!buttcoins ${type} ${name} ${amount}`) // make into whisper when this is working
+    client.whisper('thabottress', `!buttcoins ${type} ${name} ${amount}`) // make into whisper when this is working
 }
 
 let updateStreamDisplay = async (value, font, color) => {
