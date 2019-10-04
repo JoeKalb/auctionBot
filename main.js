@@ -150,6 +150,7 @@ function onMessageHandler (target, context, msg, self) {
 
 let bottressResponding = false;
 let isStillRunning = setInterval(() => {
+    console.log(`Checking if Bottress is working`)
     if(bottressResponding)
         clearInterval(isStillRunning)
     else{
