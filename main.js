@@ -24,7 +24,13 @@ client.on('message', onMessageHandler)
 client.on('connected', onConnectedHandler)
 
 // Connect to Twitch:
-client.connect();
+let clientInfo;
+client.connect().then(data => {
+    console.log(data)
+    clientInfo = data
+}).catch(err => {
+    console.log(err)
+})
 
 let topBid = {
     bid:0,
@@ -186,8 +192,9 @@ let updateStreamDisplay = async (value, font, color) => {
     console.log(json)
 }
 
+
 app.get('/', (req, res) => {
-    res.send(`BotFish is up and running!`)
+    res.send(`BotFish is using ${clientInfo[0]} on port ${clientInfo[1]}`)
 })
 
 let bottressResponding = false;
