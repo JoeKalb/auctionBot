@@ -11,7 +11,10 @@ const opts = {
     username: process.env.USERNAME,
     password: process.env.PASSWORD
   },
-  channels: ['thabuttress']
+  channels: ['thabuttress'],
+  connection:{
+      port: 443
+  }
 };
 
 const channelName = 'thabuttress'
