@@ -13,7 +13,7 @@ const opts = {
   },
   channels: ['thabuttress'],
   connection:{
-      port: 443
+      port: 80
   }
 };
 
@@ -215,6 +215,9 @@ app.get('/join/:channel', (req, res) => {
                     client.whisper('thabottress', '!check thabuttress')
                 }
             }, 10000)
+            setTimeout(() => {
+                clearInterval(isStillRunning)
+            }, 50000)
         }
 
         res.send(`BotFish is here!`)
