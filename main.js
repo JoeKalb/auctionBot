@@ -226,7 +226,7 @@ app.get('/leave/:channel', (req, res) => {
     });
 })
 
-app.listen(process.env.PORT, () => {
+app.listen(8000, () => {
     console.log(`Botfish is listening on port ${process.env.PORT}`)
 })
 
