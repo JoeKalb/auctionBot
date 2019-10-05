@@ -11,7 +11,7 @@ const opts = {
     username: process.env.USERNAME,
     password: process.env.PASSWORD
   },
-  channels: [channelName]
+  channels: ['thabuttress']
 };
 
 const channelName = 'thabuttress'
