@@ -104,8 +104,10 @@ function onMessageHandler (target, context, msg, self) {
             if(parse.length === 2){
                 try{
                     const username = parse[0]
-                    if(username === 'thabuttress')
+                    if(username === 'thabuttress'){
                         bottressResponding = true;
+                        console.log('Bottress is up and running')
+                    }
                     const points = parseInt(parse[1])
                     if(checkBid(username, points)){
                         // remove and add buttcoins
@@ -159,14 +161,12 @@ let isStillRunning = setInterval(() => {
 }, 10000)
 
 function checkBid(username, points){
-    if(points >= checkBidUsers[username]){
-        return true
-    }
-    else{
+    let hasPoints = points >= checkBidUsers[username]
+    if(!hasPoints)
         client.say('#thabuttress', `Sorry ${username}, you only have ${points} Buttcoins.`)
-        delete checkBidUsers[username]
-        return false
-    }
+    
+    delete checkBidUsers[username]
+    return hasPoints
 }
 
 function checkUser(mod, name){
