@@ -1,7 +1,9 @@
 const tmi = require('tmi.js')
-const express = require('express')
 const fetch = require('node-fetch')
 const dotenv = require('dotenv').config();
+
+const express = require('express')
+const app = express()
 
 // Define configuration options
 const opts = {
@@ -9,9 +11,10 @@ const opts = {
     username: process.env.USERNAME,
     password: process.env.PASSWORD
   },
-  channels: [
-    'thabuttress'
-  ]
+  channels: ['thabuttress'],
+  connection:{
+      port: 80
+  }
 };
 
 const channelName = 'thabuttress'
@@ -24,7 +27,13 @@ client.on('message', onMessageHandler)
 client.on('connected', onConnectedHandler)
 
 // Connect to Twitch:
-client.connect();
+let clientInfo;
+client.connect().then(data => {
+    console.log(data)
+    clientInfo = data
+}).catch(err => {
+    console.log(err)
+})
 
 let topBid = {
     bid:0,
@@ -146,19 +155,9 @@ function onMessageHandler (target, context, msg, self) {
         break;
     }
     default:
-        console.log(context['message-type'])
+        //console.log(context['message-type']) "action" is the final type
   }
 }
-
-let bottressResponding = false;
-let isStillRunning = setInterval(() => {
-    console.log(`Checking if Bottress is working`)
-    if(bottressResponding)
-        clearInterval(isStillRunning)
-    else{
-        client.whisper('thabottress', '!check thabuttress')
-    }
-}, 10000)
 
 function checkBid(username, points){
     let hasPoints = points >= checkBidUsers[username]
@@ -195,6 +194,54 @@ let updateStreamDisplay = async (value, font, color) => {
     let json = await res.json()
     console.log(json)
 }
+
+
+app.get('/', (req, res) => {
+    res.send(`BotFish is using ${clientInfo[0]} on port ${clientInfo[1]}`)
+})
+
+let bottressResponding = false;
+let isStillRunning;
+app.get('/join/:channel', (req, res) => {
+    client.join(req.params.channel)
+    .then((data) => {
+
+        if(data[0] === '#thabuttress'){
+            isStillRunning = setInterval(() => {
+                console.log(`Checking if Bottress is working`)
+                if(bottressResponding)
+                    clearInterval(isStillRunning)
+                else{
+                    client.whisper('thabottress', '!check thabuttress')
+                }
+            }, 10000)
+            setTimeout(() => {
+                clearInterval(isStillRunning)
+            }, 50000)
+        }
+
+        res.send(`BotFish is here!`)
+    }).catch((err) => {
+        res.send(`Unable to join Channel: ${req.params.channel}`)
+    });
+})
+
+app.get('/leave/:channel', (req, res) => {
+    client.part(req.params.channel)
+    .then((data) => {
+        if(data[0] === '#thabuttress')
+            clearInterval(isStillRunning)
+        
+        console.log(`BotFish has left channel: ${data[0]}`)
+        res.send(`BotFish swam away!`)
+    }).catch((err) => {
+        res.send(`Unable to leave Channel: ${req.params.channel}`)
+    });
+})
+
+app.listen(process.env.PORT, () => {
+    console.log(`Botfish is listening on port ${process.env.PORT}`)
+})
 
 // Called every time the bot connects to Twitch chat
 function onConnectedHandler (addr, port) {
