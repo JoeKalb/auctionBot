@@ -153,7 +153,7 @@ function onMessageHandler (target, context, msg, self) {
         break;
     }
     default:
-        console.log(context['message-type'])
+        //console.log(context['message-type']) "action" is the final type
   }
 }
 
