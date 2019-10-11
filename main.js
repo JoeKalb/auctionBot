@@ -41,6 +41,8 @@ let topBid = {
 }
 
 let checkBidUsers = {}
+let item = ''
+let allowBid = false
 
 // Called every time a message comes in
 function onMessageHandler (target, context, msg, self) {
@@ -61,10 +63,13 @@ function onMessageHandler (target, context, msg, self) {
             case '!bid':{
                 try{
                     const bidAmount = parseInt(parse[1])
-                    if(bidAmount > topBid.bid){
+                    if(bidAmount > topBid.bid && allowBid){
                         checkBidUsers[context.username] = bidAmount
                         console.log(checkBidUsers[context.username])
                         client.whisper('thabottress', `!check ${context.username}`)
+                    }
+                    else if(!allowBid){
+                        client.say(target, `Sorry ${context['display-name']}, there currently isn't an item up for auction.`)
                     }
                 }
                 catch(err){
@@ -73,7 +78,37 @@ function onMessageHandler (target, context, msg, self) {
                 break;
             }
             case '!topBid':{
-                client.say(target, `${(topBid.bid) ? `${topBid.username} - ${topBid.bid}`:`No one has bid yet!`}`)
+                client.say(target, `${(topBid.bid) ? `${(item !== '')? `Top Bid For ${item}: `:``}${topBid.username} - ${topBid.bid}`:`No one has bid yet!`}`)
+                break;
+            }
+            case '!setItem':{
+                if(checkUser(context.mod, context.username)){
+                    try{
+                        if(parse[1]){
+                            item = parse[1]
+                            allowBid = true
+                            client.say(target, `Item up for auction! ${item}`)
+                        }
+                    }
+                    catch(err){
+                        console.log(err)
+                    }
+                }
+                break;
+            }
+            case '!startAuction':{
+                if(checkUser(context.mod, context.username)){
+                    try{
+                        if(parse[1]){
+                            item = parse.slice(1).join(' ')
+                            allowBid = true
+                            client.say(target, `Item up for auction! ${item}`)
+                        }
+                    }
+                    catch(err){
+                        console.log(err)
+                    }
+                }
                 break;
             }
             case '!setTopBid':{
@@ -84,6 +119,7 @@ function onMessageHandler (target, context, msg, self) {
     
                         topBid.username = username
                         topBid.bid = bidAmount
+                        allowBid = true
                         updateStreamDisplay(`Current Bid: ${topBid.bid}`, 60, 'white')
                     }
                     catch(err){
@@ -95,9 +131,11 @@ function onMessageHandler (target, context, msg, self) {
             case '!sold':{
                 if(topBid.bid && checkUser(context.mod, context.username)){
                     client.say(target,
-                        `The winner of is ${topBid.username} with a bid of ${topBid.bid} buttcoins!`)
+                        `The winner ${(item !== '') ? `of ${item} `:``}is ${topBid.username} with a bid of ${topBid.bid} buttcoins!`)
                     topBid.username = ''
                     topBid.bid = 0
+                    item = ''
+                    allowBid = false
                 }
                 break;
             }
