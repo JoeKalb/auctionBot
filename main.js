@@ -152,6 +152,7 @@ function onMessageHandler (target, context, msg, self) {
                     const username = parse[0]
                     if(username === 'thabuttress'){
                         bottressResponding = true;
+                        clearInterval(isStillRunning)
                         console.log('Bottress is up and running')
                     }
                     const points = parseInt(parse[1])
@@ -195,7 +196,7 @@ function onMessageHandler (target, context, msg, self) {
 
 function checkBid(username, points){
     let hasPoints = points >= checkBidUsers[username]
-    if(!hasPoints){
+    if(!hasPoints && checkBidUsers.hasOwnProperty(username)){
         client.say('#thabuttress', `Sorry ${username}, you only have ${points} Buttcoins.`)
     }
     
