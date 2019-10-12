@@ -56,8 +56,8 @@ function onMessageHandler (target, context, msg, self) {
                 client.say(target, 'Beep Boop Botfish')
                 break;
             }
-            case '!auction':{
-                client.say(target, `We're doing a buttcoin auction!!! Commands: !bid <amount> | !topBid`)
+            case '!auctionInfo':{
+                client.say(target, `Birthday Month Buttcoin Auction!!! Commands: !bid <amount> | !topBid`)
                 break;
             }
             case '!bid':{
@@ -65,7 +65,6 @@ function onMessageHandler (target, context, msg, self) {
                     const bidAmount = parseInt(parse[1])
                     if(bidAmount > topBid.bid && allowBid){
                         checkBidUsers[context.username] = bidAmount
-                        console.log(checkBidUsers[context.username])
                         client.whisper('thabottress', `!check ${context.username}`)
                     }
                     else if(!allowBid){
@@ -160,17 +159,14 @@ function onMessageHandler (target, context, msg, self) {
                         // remove and add buttcoins
 
                         const removeAmount = checkBidUsers[username]
-                        console.log(removeAmount)
     
                         setTimeout(() => {
-                            console.log(`remove ${username} ${removeAmount}`)
                             buttcoins('remove', username, removeAmount)
                         }, 5000)
                         if(topBid.bid){
                             const oldTopName = topBid.username
                             const oldTopBid = topBid.bid
                             setTimeout(() => {
-                                console.log(`add ${oldTopName} ${oldTopBid}`)
                                 buttcoins('add', oldTopName, oldTopBid)
                             }, 7000)
                         }
@@ -179,11 +175,11 @@ function onMessageHandler (target, context, msg, self) {
                         topBid.username = username
                         topBid.bid = checkBidUsers[username]
                         client.say('#thabuttress', `New Top Bidder: ${topBid.username} - ${topBid.bid}`)
-                        updateStreamDisplay(`Current Bid: ${topBid.bid}`, 60, 'white')
-        
-                        // remove user from checkBidUsers
-                        delete checkBidUsers[username]
+                        updateStreamDisplay(`${item} - ${topBid.bid}`, 60, 'white')
                     }
+
+                    // remove user from checkBidUsers
+                    delete checkBidUsers[username]
                 }
                 catch(err){
                     console.log(err)
@@ -199,10 +195,10 @@ function onMessageHandler (target, context, msg, self) {
 
 function checkBid(username, points){
     let hasPoints = points >= checkBidUsers[username]
-    if(!hasPoints)
+    if(!hasPoints){
         client.say('#thabuttress', `Sorry ${username}, you only have ${points} Buttcoins.`)
+    }
     
-    delete checkBidUsers[username]
     return hasPoints
 }
 
