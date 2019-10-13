@@ -41,6 +41,7 @@ let topBid = {
 }
 
 let checkBidUsers = {}
+let currentButtcoinAmounts = {}
 let item = ''
 let allowBid = false
 
@@ -65,7 +66,31 @@ function onMessageHandler (target, context, msg, self) {
                     const bidAmount = parseInt(parse[1])
                     if(bidAmount > topBid.bid && allowBid){
                         checkBidUsers[context.username] = bidAmount
-                        client.whisper('thabottress', `!check ${context.username}`)
+
+                        if(currentButtcoinAmounts.hasOwnProperty(context.username) && 
+                            currentButtcoinAmounts[context.username] >= bidAmount){
+                            
+                            const removeAmount = checkBidUsers[context.username]
+    
+                            setTimeout(() => {
+                                buttcoins('remove', context.username, removeAmount)
+                            }, 2000)
+                            if(topBid.bid){
+                                const oldTopName = topBid.username
+                                const oldTopBid = topBid.bid
+                                setTimeout(() => {
+                                    buttcoins('add', oldTopName, oldTopBid)
+                                }, 4000)
+                            }
+                            
+                            // reset and notify an updated bid
+                            topBid.username = context.username
+                            topBid.bid = checkBidUsers[context.username]
+                            client.say('#thabuttress', `New Top Bidder: ${topBid.username} - ${topBid.bid}`)
+                            updateStreamDisplay(`${item} - ${topBid.bid}`, 60, 'white')
+
+                        }else
+                            client.whisper('thabottress', `!check ${context.username}`)
                     }
                     else if(!allowBid){
                         client.say(target, `Sorry ${context['display-name']}, there currently isn't an item up for auction.`)
@@ -156,6 +181,9 @@ function onMessageHandler (target, context, msg, self) {
                         console.log('Bottress is up and running')
                     }
                     const points = parseInt(parse[1])
+
+                    currentButtcoinAmounts[username] = points;
+
                     if(checkBid(username, points)){
                         // remove and add buttcoins
 
@@ -163,13 +191,13 @@ function onMessageHandler (target, context, msg, self) {
     
                         setTimeout(() => {
                             buttcoins('remove', username, removeAmount)
-                        }, 5000)
+                        }, 2000)
                         if(topBid.bid){
                             const oldTopName = topBid.username
                             const oldTopBid = topBid.bid
                             setTimeout(() => {
                                 buttcoins('add', oldTopName, oldTopBid)
-                            }, 7000)
+                            }, 4000)
                         }
                         
                         // reset and notify an updated bid
@@ -209,7 +237,16 @@ function checkUser(mod, name){
 
 function buttcoins(type, name, amount){
     console.log(`!buttcoins ${type} ${name} ${amount}`)
-    client.whisper('thabottress', `!buttcoins ${type} ${name} ${amount}`) // make into whisper when this is working
+    client.whisper('thabottress', `!buttcoins ${type} ${name} ${amount}`).then(res => {
+        if(type === 'add'){
+            currentButtcoinAmounts[name] += amount
+        }else if(type === 'remove'){
+            currentButtcoinAmounts[name] -= amount
+        }
+    }).catch(err => {
+        console.log(err)
+        console.log(`buttcoin error: ${type} ${name} ${amount}`)
+    }) // make into whisper when this is working
 }
 
 let updateStreamDisplay = async (value, font, color) => {
