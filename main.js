@@ -45,6 +45,25 @@ let currentButtcoinAmounts = {}
 let item = ''
 let allowBid = false
 
+let whisperQueue = []
+const whisperObject = {
+    user:'',
+    message:''
+}
+
+setInterval(() => {
+    if(whisperQueue.length !== 0){
+        const whisper = whisperQueue.shift()
+        client.whisper(whisper.user, whisper.message)
+        .then(res => {
+            console.log(res)
+        })
+        .catch(err => {
+            console.log(err)
+        })
+    }
+}, 850)
+
 // Called every time a message comes in
 function onMessageHandler (target, context, msg, self) {
   if (self) { return; } // Ignore messages from the bot
@@ -75,16 +94,20 @@ function onMessageHandler (target, context, msg, self) {
                             && currentButtcoinAmounts[context.username] >= bidAmount){
                             
                             const removeAmount = checkBidUsers[context.username]
+
+                            let newWhisper = Object.assign({}, whisperObject)
+                            newWhisper.user = 'thabottress'
+                            newWhisper.message = buttcoins('remove', context.username, removeAmount)
+                            whisperQueue.push(newWhisper)
     
-                            setTimeout(() => {
-                                buttcoins('remove', context.username, removeAmount)
-                            }, 2000)
                             if(topBid.bid){
                                 const oldTopName = topBid.username
                                 const oldTopBid = topBid.bid
-                                setTimeout(() => {
-                                    buttcoins('add', oldTopName, oldTopBid)
-                                }, 4000)
+
+                                let addBackWhisper = Object.assign({}, whisperObject)
+                                addBackWhisper.user = 'thabottress'
+                                addBackWhisper.message = buttcoins('add', oldTopName, oldTopBid)
+                                whisperQueue.push(addBackWhisper)
                             }
                             
                             // reset and notify an updated bid
@@ -93,10 +116,12 @@ function onMessageHandler (target, context, msg, self) {
                             client.say('#thabuttress', `New Top Bidder: ${topBid.username} - ${topBid.bid}`)
                             updateStreamDisplay(`${item} - ${topBid.bid}`, 60, 'white')
 
-                        }else
-                            setTimeout(() => {
-                                client.whisper('thabottress', `!check ${context.username}`)
-                            }, 500)
+                        }else{
+                            let newWhisper = Object.assign({}, whisperObject)
+                            newWhisper.user = 'thabottress'
+                            newWhisper.message = `!check ${context.username}`
+                            whisperQueue.push(newWhisper)
+                        }
                             
                     }
                     else if(!allowBid){
@@ -195,16 +220,19 @@ function onMessageHandler (target, context, msg, self) {
                         // remove and add buttcoins
 
                         const removeAmount = checkBidUsers[username]
-    
-                        setTimeout(() => {
-                            buttcoins('remove', username, removeAmount)
-                        }, 2000)
+
+                        let newWhisper = Object.assign({}, whisperObject)
+                        newWhisper.user = 'thabottress'
+                        newWhisper.message = buttcoins('remove', username, removeAmount)
+                        whisperQueue.push(newWhisper)
+
                         if(topBid.bid){
                             const oldTopName = topBid.username
                             const oldTopBid = topBid.bid
-                            setTimeout(() => {
-                                buttcoins('add', oldTopName, oldTopBid)
-                            }, 4000)
+                            let addBackWhisper = Object.assign({}, whisperObject)
+                            addBackWhisper.user = 'thabottress'
+                            addBackWhisper.message = buttcoins('add', oldTopName, oldTopBid)
+                            whisperQueue.push(addBackWhisper)
                         }
                         
                         // reset and notify an updated bid
@@ -243,17 +271,15 @@ function checkUser(mod, name){
 }
 
 function buttcoins(type, name, amount){
-    console.log(`!buttcoins ${type} ${name} ${amount}`)
-    client.whisper('thabottress', `!buttcoins ${type} ${name} ${amount}`).then(res => {
-        if(type === 'add'){
-            currentButtcoinAmounts[name] += amount
-        }else if(type === 'remove'){
-            currentButtcoinAmounts[name] -= amount
-        }
-    }).catch(err => {
-        console.log(err)
-        console.log(`buttcoin error: ${type} ${name} ${amount}`)
-    }) // make into whisper when this is working
+    let result = `!buttcoins ${type} ${name} ${amount}`
+    console.log(result)
+    if(type === 'add'){
+        currentButtcoinAmounts[name] += amount
+    }else if(type === 'remove'){
+        currentButtcoinAmounts[name] -= amount
+    }
+
+    return result;
 }
 
 let updateStreamDisplay = async (value, font, color) => {
