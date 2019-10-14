@@ -64,11 +64,15 @@ function onMessageHandler (target, context, msg, self) {
             case '!bid':{
                 try{
                     const bidAmount = parseInt(parse[1])
-                    if(bidAmount > topBid.bid && allowBid){
+                    if(allowBid 
+                        && bidAmount !== NaN 
+                        && bidAmount > topBid.bid
+                        && bidAmount < 200000){
+
                         checkBidUsers[context.username] = bidAmount
 
-                        if(currentButtcoinAmounts.hasOwnProperty(context.username) && 
-                            currentButtcoinAmounts[context.username] >= bidAmount){
+                        if(currentButtcoinAmounts.hasOwnProperty(context.username) 
+                            && currentButtcoinAmounts[context.username] >= bidAmount){
                             
                             const removeAmount = checkBidUsers[context.username]
     
@@ -90,7 +94,10 @@ function onMessageHandler (target, context, msg, self) {
                             updateStreamDisplay(`${item} - ${topBid.bid}`, 60, 'white')
 
                         }else
-                            client.whisper('thabottress', `!check ${context.username}`)
+                            setTimeout(() => {
+                                client.whisper('thabottress', `!check ${context.username}`)
+                            }, 500)
+                            
                     }
                     else if(!allowBid){
                         client.say(target, `Sorry ${context['display-name']}, there currently isn't an item up for auction.`)
