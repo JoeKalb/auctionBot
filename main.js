@@ -94,20 +94,12 @@ function onMessageHandler (target, context, msg, self) {
                             && currentButtcoinAmounts[context.username] >= bidAmount){
                             
                             const removeAmount = checkBidUsers[context.username]
-
-                            let newWhisper = Object.assign({}, whisperObject)
-                            newWhisper.user = 'thabottress'
-                            newWhisper.message = buttcoins('remove', context.username, removeAmount)
-                            whisperQueue.push(newWhisper)
+                            addToWhsiperQueue('thabottress', buttcoins('remove', context.username, removeAmount))
     
                             if(topBid.bid){
                                 const oldTopName = topBid.username
                                 const oldTopBid = topBid.bid
-
-                                let addBackWhisper = Object.assign({}, whisperObject)
-                                addBackWhisper.user = 'thabottress'
-                                addBackWhisper.message = buttcoins('add', oldTopName, oldTopBid)
-                                whisperQueue.push(addBackWhisper)
+                                addToWhsiperQueue('thabottress', buttcoins('add', oldTopName, oldTopBid))
                             }
                             
                             // reset and notify an updated bid
@@ -117,10 +109,7 @@ function onMessageHandler (target, context, msg, self) {
                             updateStreamDisplay(`${item} - ${topBid.bid}`, 60, 'white')
 
                         }else{
-                            let newWhisper = Object.assign({}, whisperObject)
-                            newWhisper.user = 'thabottress'
-                            newWhisper.message = `!check ${context.username}`
-                            whisperQueue.push(newWhisper)
+                            addToWhsiperQueue('thabottress', `!check ${context.username}`)
                         }
                             
                     }
@@ -220,19 +209,12 @@ function onMessageHandler (target, context, msg, self) {
                         // remove and add buttcoins
 
                         const removeAmount = checkBidUsers[username]
-
-                        let newWhisper = Object.assign({}, whisperObject)
-                        newWhisper.user = 'thabottress'
-                        newWhisper.message = buttcoins('remove', username, removeAmount)
-                        whisperQueue.push(newWhisper)
+                        addToWhsiperQueue('thabottress', buttcoins('remove', username, removeAmount))
 
                         if(topBid.bid){
                             const oldTopName = topBid.username
                             const oldTopBid = topBid.bid
-                            let addBackWhisper = Object.assign({}, whisperObject)
-                            addBackWhisper.user = 'thabottress'
-                            addBackWhisper.message = buttcoins('add', oldTopName, oldTopBid)
-                            whisperQueue.push(addBackWhisper)
+                            addToWhsiperQueue('thabottress', buttcoins('add', oldTopName, oldTopBid))
                         }
                         
                         // reset and notify an updated bid
@@ -280,6 +262,15 @@ function buttcoins(type, name, amount){
     }
 
     return result;
+}
+
+let addToWhsiperQueue = (user, message) => {
+    let newWhisper = Object.assign({}, whisperObject)
+
+    newWhisper.user = user
+    newWhisper.message = message
+
+    whisperQueue.push(newWhisper)
 }
 
 let updateStreamDisplay = async (value, font, color) => {
