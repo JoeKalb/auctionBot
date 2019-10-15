@@ -96,7 +96,6 @@ function onMessageHandler (target, context, msg, self) {
                         }else{
                             addToWhsiperQueue('thabottress', `!check ${context.username}`)
                         }
-                            
                     }
                     else if(!allowBid){
                         client.say(target, `Sorry ${context['display-name']}, there currently isn't an item up for auction.`)
@@ -230,6 +229,7 @@ function checkBid(username, points){
     let hasPoints = points >= checkBidUsers[username]
     if(!hasPoints && checkBidUsers.hasOwnProperty(username)){
         client.say('#thabuttress', `Sorry ${username}, you only have ${points} Buttcoins.`)
+        delete checkBidUsers[username]
     }
     
     return hasPoints
