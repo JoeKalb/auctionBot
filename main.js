@@ -219,7 +219,7 @@ function onMessageHandler (target, context, msg, self) {
                         
                         // reset and notify an updated bid
                         topBid.username = username
-                        topBid.bid = checkBidUsers[username]
+                        topBid.bid = removeAmount
                         client.say('#thabuttress', `New Top Bidder: ${topBid.username} - ${topBid.bid}`)
                         updateStreamDisplay(`${item} - ${topBid.bid}`, 60, 'white')
                     }
