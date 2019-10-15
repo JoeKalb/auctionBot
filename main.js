@@ -92,22 +92,7 @@ function onMessageHandler (target, context, msg, self) {
 
                         if(currentButtcoinAmounts.hasOwnProperty(context.username) 
                             && currentButtcoinAmounts[context.username] >= bidAmount){
-                            
-                            const removeAmount = checkBidUsers[context.username]
-                            addToWhsiperQueue('thabottress', buttcoins('remove', context.username, removeAmount))
-    
-                            if(topBid.bid){
-                                const oldTopName = topBid.username
-                                const oldTopBid = topBid.bid
-                                addToWhsiperQueue('thabottress', buttcoins('add', oldTopName, oldTopBid))
-                            }
-                            
-                            // reset and notify an updated bid
-                            topBid.username = context.username
-                            topBid.bid = checkBidUsers[context.username]
-                            client.say('#thabuttress', `New Top Bidder: ${topBid.username} - ${topBid.bid}`)
-                            updateStreamDisplay(`${item} - ${topBid.bid}`, 60, 'white')
-
+                            setNewTopBid(context.username)
                         }else{
                             addToWhsiperQueue('thabottress', `!check ${context.username}`)
                         }
@@ -206,26 +191,8 @@ function onMessageHandler (target, context, msg, self) {
                     currentButtcoinAmounts[username] = points;
 
                     if(checkBid(username, points)){
-                        // remove and add buttcoins
-
-                        const removeAmount = checkBidUsers[username]
-                        addToWhsiperQueue('thabottress', buttcoins('remove', username, removeAmount))
-
-                        if(topBid.bid){
-                            const oldTopName = topBid.username
-                            const oldTopBid = topBid.bid
-                            addToWhsiperQueue('thabottress', buttcoins('add', oldTopName, oldTopBid))
-                        }
-                        
-                        // reset and notify an updated bid
-                        topBid.username = username
-                        topBid.bid = removeAmount
-                        client.say('#thabuttress', `New Top Bidder: ${topBid.username} - ${topBid.bid}`)
-                        updateStreamDisplay(`${item} - ${topBid.bid}`, 60, 'white')
+                        setNewTopBid(username)
                     }
-
-                    // remove user from checkBidUsers
-                    delete checkBidUsers[username]
                 }
                 catch(err){
                     console.log(err)
@@ -237,6 +204,26 @@ function onMessageHandler (target, context, msg, self) {
     default:
         //console.log(context['message-type']) "action" is the final type
   }
+}
+
+let setNewTopBid = (username) => {
+    const removeAmount = checkBidUsers[username]
+    addToWhsiperQueue('thabottress', buttcoins('remove', username, removeAmount))
+
+    if(topBid.bid){
+        const oldTopName = topBid.username
+        const oldTopBid = topBid.bid
+        addToWhsiperQueue('thabottress', buttcoins('add', oldTopName, oldTopBid))
+    }
+    
+    // reset and notify an updated bid
+    topBid.username = username
+    topBid.bid = removeAmount
+    client.say('#thabuttress', `New Top Bidder: ${topBid.username} - ${topBid.bid}`)
+    updateStreamDisplay(`${item} - ${topBid.bid}`, 60, 'white')
+
+    // remove user from checkBidUsers
+    delete checkBidUsers[username]
 }
 
 function checkBid(username, points){
