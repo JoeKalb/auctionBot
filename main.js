@@ -248,7 +248,7 @@ function buttcoins(type, name, amount){
         currentButtcoinAmounts[name] -= amount
     }
 
-    return result;
+    return result
 }
 
 let addToWhsiperQueue = (user, message) => {
@@ -305,7 +305,7 @@ app.get('/join/:channel', (req, res) => {
         res.send(`BotFish is here!`)
     }).catch((err) => {
         res.send(`Unable to join Channel: ${req.params.channel}`)
-    });
+    })
 })
 
 app.get('/leave/:channel', (req, res) => {
@@ -318,7 +318,7 @@ app.get('/leave/:channel', (req, res) => {
         res.send(`BotFish swam away!`)
     }).catch((err) => {
         res.send(`Unable to leave Channel: ${req.params.channel}`)
-    });
+    })
 })
 
 app.listen(process.env.PORT, () => {
@@ -327,5 +327,5 @@ app.listen(process.env.PORT, () => {
 
 // Called every time the bot connects to Twitch chat
 function onConnectedHandler (addr, port) {
-  console.log(`* Connected to ${addr}:${port}`);
+  console.log(`* Connected to ${addr}:${port}`)
 }
