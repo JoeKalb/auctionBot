@@ -278,7 +278,6 @@ let updateStreamDisplay = async (value, font, color) => {
     console.log(json)
 }
 
-
 app.get('/', (req, res) => {
     res.send(`BotFish is using ${clientInfo[0]} on port ${clientInfo[1]}`)
 })
