@@ -15,7 +15,7 @@ const opts = {
   connection:{
       port: 80
   }
-};
+}
 
 const channelName = 'thabuttress'
 
@@ -66,7 +66,7 @@ setInterval(() => {
 
 // Called every time a message comes in
 function onMessageHandler (target, context, msg, self) {
-  if (self) { return; } // Ignore messages from the bot
+  if (self) { return } // Ignore messages from the bot
   switch(context['message-type']){
       case 'chat':{
         const parse = msg.split(' ')
@@ -187,7 +187,7 @@ function onMessageHandler (target, context, msg, self) {
                     }
                     const points = parseInt(parse[1])
 
-                    currentButtcoinAmounts[username] = points;
+                    currentButtcoinAmounts[username] = points
 
                     if(checkBid(username, points)){
                         setNewTopBid(username)
